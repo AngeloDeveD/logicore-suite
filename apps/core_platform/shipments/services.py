@@ -27,3 +27,11 @@ class ShipmentService:
             location=shipment.destination
         )
         return event
+    
+    @staticmethod
+    def trigger_status_notification(shipment_id: int, status: str, customer_email: str):
+        """Интеграция с Celery воркером"""
+        # delay() отправляет задачу в RabbitMQ
+        from apps.notification_worker.tasks import send_shipment_notification
+        task = send_shipment_notification.delay(shipment_id, status, customer_email)
+        return task.id
